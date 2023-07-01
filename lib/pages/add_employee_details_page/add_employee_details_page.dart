@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:real_innov/styles/styles.dart';
 
+import '../../bloc/employee_bloc.dart';
 import '../../models/employee.dart';
-import '../../services/employee_bloc_service.dart';
 
 class AddEmployeeDetailsPage extends StatefulWidget {
   @override
@@ -47,7 +48,12 @@ class _AddEmployeeDetailsPageState extends State<AddEmployeeDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Add Employee')),
+      appBar: AppBar(backgroundColor: AppColor.secondaryColor,
+      automaticallyImplyLeading: false,
+        title: Text(
+          'Add Employee Details',
+          style: HeaderFonts.primaryText,
+        ),),
       body: Padding(
         padding: EdgeInsets.all(16),
         child: Form(
@@ -57,7 +63,10 @@ class _AddEmployeeDetailsPageState extends State<AddEmployeeDetailsPage> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: InputDecoration(labelText: 'Name'),
+                decoration: InputDecoration(enabledBorder: OutlineInputBorder( //<-- SEE HERE
+      borderSide: BorderSide(
+          width: 3, color: AppColor.secondaryColor), 
+    ),labelText: 'Employee name'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a name';

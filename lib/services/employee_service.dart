@@ -19,6 +19,7 @@ class EmployeeService {
   }
 
   Future<void> addEmployee(Employee employee) async {
+    print('----------------------$employee');
     final box = _getBox();
     await box.add(employee);
   }
