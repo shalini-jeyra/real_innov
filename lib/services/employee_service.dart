@@ -19,7 +19,6 @@ class EmployeeService {
   }
 
   Future<void> addEmployee(Employee employee) async {
-    print('----------------------$employee');
     final box = _getBox();
     await box.add(employee);
   }
@@ -30,10 +29,11 @@ class EmployeeService {
     await box.putAt(index, employee);
   }
 
-  Future<void> deleteEmployee(Employee employee) async {
-    final box = _getBox();
-    await box.delete(employee);
-  }
+Future<void> deleteEmployee(Employee employee) async {
+  final box = _getBox();
+  await box.delete(employee.key);
+}
+
 
   Future<void> close() async {
     await Hive.close();

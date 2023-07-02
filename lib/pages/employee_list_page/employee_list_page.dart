@@ -5,29 +5,42 @@ import 'package:real_innov/pages/pages.dart';
 import 'package:real_innov/styles/styles.dart';
 
 import '../../bloc/employee_bloc.dart';
+import '../../models/employee.dart';
 
 class EmployeeListPage extends StatefulWidget {
-  const EmployeeListPage({
-    super.key,
-  });
+  const EmployeeListPage({Key? key}) : super(key: key);
 
   @override
-  State<EmployeeListPage> createState() => _EmployeeListPageState();
+  _EmployeeListPageState createState() => _EmployeeListPageState();
 }
 
 class _EmployeeListPageState extends State<EmployeeListPage> {
-  EmployeeBloc employeeBloc=EmployeeBloc();
+  late EmployeeBloc employeeBloc;
+List<Employee> employees = [];
+
   @override
   void initState() {
     super.initState();
+    employeeBloc = BlocProvider.of<EmployeeBloc>(context);
     employeeBloc.add(LoadEmployeeEvent());
-
   }
-    @override
+
+  @override
   void dispose() {
-    employeeBloc.close();
     super.dispose();
   }
+
+ void _deleteEmployee(Employee employee) {
+    employeeBloc.add(DeleteEmployeeEvent(employee));
+  }
+
+  void _updateEmployeesList(List<Employee> updatedEmployees) {
+    setState(() {
+      employees = updatedEmployees;
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,63 +53,80 @@ class _EmployeeListPageState extends State<EmployeeListPage> {
       ),
       body: BlocBuilder<EmployeeBloc, EmployeeState>(
         bloc: employeeBloc,
-          builder: (context, state) {
-          
-            if (state is EmployeeLoadingState) {
-              return Center(child: CircularProgressIndicator());
-            } else if (state is EmployeeLoadedState) {
-              final employees = state.employees;
-             
-              if (employees.isEmpty) {
-                return Center(
-                  child: Image.asset(
-                    'assets/not_found.png',
-                  ),
-                );
-              }
-              return ListView.builder(
-                itemCount: employees.length,
-                itemBuilder: (context, index) {
-                  final employee = employees[index];
-                  final isCurrentEmployee = employee.endDate == null;
-                  final startDateFormatted =
-                      DateFormat.yMMMd().format(employee.startDate);
-                  final endDateFormatted = isCurrentEmployee
-                      ? 'Present'
-                      : DateFormat.yMMMd().format(employee.endDate!);
-
-                  return ListTile(
-                    title: Text(employee.name),
-                    subtitle: Text(
-                        'Start Date: $startDateFormatted\nEnd Date: $endDateFormatted'),
-                  );
-                },
+        builder: (context, state) {
+          if (state is EmployeeLoadingState) {
+            return Center(child: CircularProgressIndicator());
+          } else if (state is EmployeeLoadedState) {
+               employees = List<Employee>.from(state.employees);
+   print(employees);
+            if (employees.isEmpty) {
+              return Center(
+                child: Image.asset(
+                  'assets/not_found.png',
+                ),
               );
-            } else if (state is EmployeeErrorState) {
-              return Center(child: Text(state.errorMessage));
             }
 
-            return Container();
-          },
-        ),
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: ButtonColor.primaryColor,
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (BuildContext context) => AddEmployeeDetailsPage(),
-              ),
+            return ListView.builder(
+              itemCount: employees.length,
+              itemBuilder: (context, index) {
+                final employee = employees[index];
+                final startDateFormatted =
+                    DateFormat.yMMMd().format(employee.startDate);
+                final endDateFormatted =
+                    DateFormat.yMMMd().format(employee.endDate);
+
+                return Dismissible(
+                  key: UniqueKey(),
+                  direction: DismissDirection.endToStart,
+                  background: Container(
+                    color: Colors.red,
+                    alignment: Alignment.centerRight,
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Icon(Icons.delete, color: Colors.white),
+                  ),
+                  onDismissed: (direction) {
+                
+                  
+                        _deleteEmployee(employee);
+                          setState(() {
+                      employees.removeAt(index);
+                    });
+                   _updateEmployeesList(employees);
+                    print(employees);
+                  },
+                  child: ListTile(
+                    title: Text(employee.name),
+                    subtitle: Text(
+                      'Start Date: $startDateFormatted\nEnd Date: $endDateFormatted',
+                    ),
+                  ),
+                );
+              },
             );
-          },
-          tooltip: 'Add employee details',
-          child: const Icon(
-            Icons.add,
-            color: IconColor.primaryColor,
-          ),
+          } else if (state is EmployeeErrorState) {
+            return Center(child: Text(state.errorMessage));
+          }
+
+          return Container();
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: ButtonColor.primaryColor,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (BuildContext context) => AddEmployeeDetailsPage(),
+            ),
+          );
+        },
+        tooltip: 'Add employee details',
+        child: const Icon(
+          Icons.add,
+          color: IconColor.primaryColor,
         ),
-      
-       
+      ),
     );
   }
 }

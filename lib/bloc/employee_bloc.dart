@@ -28,27 +28,27 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
     try {
       await database.open();
       final employees = await database.getEmployees();
+     
       emit(EmployeeLoadedState(employees));
     } catch (e) {
       emit(EmployeeErrorState('Failed to load employees'));
     }
   }
 
-  Future<void> _mapAddEmployeeEventToState(
-    AddEmployeeEvent event,
-    Emitter<EmployeeState> emit,
-  ) async {
-    emit(EmployeeLoadingState());
-    try {
-      
-      await database.addEmployee(event.employee);
-      final employees = await database.getEmployees();
-      print(employees);
-      emit(EmployeeLoadedState(employees));
-    } catch (e) {
-      emit(EmployeeErrorState('Failed to add employee'));
-    }
+Future<void> _mapAddEmployeeEventToState(
+  AddEmployeeEvent event,
+  Emitter<EmployeeState> emit,
+) async {
+  emit(EmployeeLoadingState());
+  try {
+    await database.addEmployee(event.employee);
+    final employees = await database.getEmployees();
+    emit(EmployeeLoadedState(List<Employee>.from(employees))); // Emit a new state with the updated list
+  } catch (e) {
+    emit(EmployeeErrorState('Failed to add employee'));
   }
+}
+
 
   Future<void> _mapUpdateEmployeeEventToState(
     UpdateEmployeeEvent event,
@@ -63,20 +63,25 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
       emit(EmployeeErrorState('Failed to update employee'));
     }
   }
-
-  Future<void> _mapDeleteEmployeeEventToState(
-    DeleteEmployeeEvent event,
-    Emitter<EmployeeState> emit,
-  ) async {
-    emit(EmployeeLoadingState());
-    try {
-      await database.deleteEmployee(event.employee);
-      final employees = await database.getEmployees();
-      emit(EmployeeLoadedState(employees));
-    } catch (e) {
-      emit(EmployeeErrorState('Failed to delete employee'));
-    }
+Future<void> _mapDeleteEmployeeEventToState(
+  DeleteEmployeeEvent event,
+  Emitter<EmployeeState> emit,
+) async {
+  emit(EmployeeLoadingState());
+  try {
+    await database.deleteEmployee(event.employee);
+    final employees = await database.getEmployees();
+    final updatedEmployees = List<Employee>.from(employees);
+    updatedEmployees.remove(event.employee);
+    emit(EmployeeLoadedState(updatedEmployees));
+  } catch (e) {
+    emit(EmployeeErrorState('Failed to delete employee'));
   }
+}
+
+
+
+
 
   @override
   Future<void> close() async {

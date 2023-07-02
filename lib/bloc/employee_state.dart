@@ -18,7 +18,12 @@ class EmployeeLoadedState extends EmployeeState {
 
   @override
   List<Object?> get props => [employees];
+    List<Employee> removeEmployee(Employee employee) {
+    return List<Employee>.from(employees)..remove(employee);
+  }
 }
+
+class EmployeeDeletedState extends EmployeeState {}
 
 class EmployeeErrorState extends EmployeeState {
   final String errorMessage;

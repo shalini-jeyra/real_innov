@@ -16,7 +16,7 @@ class _AddEmployeeDetailsPageState extends State<AddEmployeeDetailsPage> {
   late TextEditingController _nameController;
   late DateTime _startDate;
   late DateTime _endDate;
-  bool _isCurrentEmployee = true;
+
 
   @override
   void initState() {
@@ -32,18 +32,22 @@ class _AddEmployeeDetailsPageState extends State<AddEmployeeDetailsPage> {
     super.dispose();
   }
 
-  void _saveEmployee() {
-    if (_formKey.currentState!.validate()) {
-      final employee = Employee(
-        id: DateTime.now().microsecondsSinceEpoch,
-        name: _nameController.text,
-        startDate: _startDate,
-        endDate: _isCurrentEmployee ? null : _endDate,
-      );
-      BlocProvider.of<EmployeeBloc>(context).add(AddEmployeeEvent(employee));
-      Navigator.pop(context);
-    }
+void _saveEmployee()async {
+  if (_formKey.currentState!.validate()) {
+    final employee = Employee(
+      id: DateTime.now().microsecondsSinceEpoch,
+      name: _nameController.text,
+      startDate: _startDate,
+      endDate: _endDate,
+    );
+    BlocProvider.of<EmployeeBloc>(context).add(AddEmployeeEvent(employee));
+    await Future.delayed(Duration(milliseconds: 300));
+    Navigator.pop(context);
+      BlocProvider.of<EmployeeBloc>(context).add(LoadEmployeeEvent());
+    
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -93,16 +97,8 @@ class _AddEmployeeDetailsPageState extends State<AddEmployeeDetailsPage> {
                 child: Text(DateFormat.yMMMd().format(_startDate)),
               ),
               SizedBox(height: 16),
-              CheckboxListTile(
-                title: Text('Current Employee'),
-                value: _isCurrentEmployee,
-                onChanged: (value) {
-                  setState(() {
-                    _isCurrentEmployee = value ?? false;
-                  });
-                },
-              ),
-              if (!_isCurrentEmployee) ...[
+            
+             
                 Text('End Date'),
                 TextButton(
                   onPressed: () async {
@@ -120,7 +116,7 @@ class _AddEmployeeDetailsPageState extends State<AddEmployeeDetailsPage> {
                   },
                   child: Text(DateFormat.yMMMd().format(_endDate)),
                 ),
-              ],
+              
               SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _saveEmployee,
