@@ -21,12 +21,13 @@ class AddEmployeeEvent extends EmployeeEvent {
 }
 
 class UpdateEmployeeEvent extends EmployeeEvent {
-  final Employee employee;
+  final Employee oldEmployee;
+  final Employee newEmployee;
 
-  UpdateEmployeeEvent(this.employee);
+  UpdateEmployeeEvent(this.oldEmployee, this.newEmployee);
 
   @override
-  List<Object?> get props => [employee];
+  List<Object?> get props => [oldEmployee, newEmployee];
 }
 
 class DeleteEmployeeEvent extends EmployeeEvent {

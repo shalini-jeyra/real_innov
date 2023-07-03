@@ -48,6 +48,11 @@ class TextFonts {
     fontWeight: FontWeight.w400,
     color: TextColor.secondaryColor,
   );
+    static final specialText = AppFonts.getAppFont(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    color: TextColor.primaryColor,
+  );
 }
 class HintFonts {
   static final primaryText = AppFonts.getAppFont(
@@ -61,3 +66,16 @@ class HintFonts {
     color: HintColor.primaryColor,
   );
 }
+class ButtonFonts {
+  static final primaryText = AppFonts.getAppFont(
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    color: TextColor.secondaryColor,
+  );
+   static final secondaryText = AppFonts.getAppFont(
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    color: TextColor.ternaryColor,
+  );
+}
+

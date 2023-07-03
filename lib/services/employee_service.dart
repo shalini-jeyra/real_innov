@@ -22,12 +22,18 @@ class EmployeeService {
     final box = _getBox();
     await box.add(employee);
   }
-
-  Future<void> updateEmployee(Employee employee) async {
-    final box = _getBox();
-    final index = await box.add(employee);
-    await box.putAt(index, employee);
+Future<void> updateEmployee(Employee employee) async {
+  final box = _getBox();
+  final employees = await getEmployees();
+  final index = employees.indexWhere((emp) => emp.id == employee.id);
+  if (index != -1) {
+    employees[index] = employee;
+    await box.putAll(employees.asMap());
   }
+}
+
+
+
 
 Future<void> deleteEmployee(Employee employee) async {
   final box = _getBox();

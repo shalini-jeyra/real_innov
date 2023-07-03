@@ -58,5 +58,20 @@ class IconColor {
     255,
     255,
   );
-  
+   static const Color secondaryColor = Color.fromARGB(
+    255,
+    29,
+    161,
+    242,
+  ); 
 }
+
+class ErrorColor {
+  static const Color primaryColor = Color.fromARGB(
+    255,
+ 243, 70, 66, 
+  );
+ 
+}
+
+

@@ -1,9 +1,10 @@
 import 'dart:convert';
 
-import 'package:equatable/equatable.dart';
+
 import 'package:hive/hive.dart';
 
-class Employee extends HiveObject with EquatableMixin {
+@HiveType(typeId: 0)
+class Employee extends HiveObject {
   @HiveField(0)
   int id;
 
@@ -14,29 +15,32 @@ class Employee extends HiveObject with EquatableMixin {
   DateTime startDate;
 
   @HiveField(3)
-  DateTime endDate;
+  DateTime? endDate;
+
+  @HiveField(4)
+  String designation;
 
   Employee({
     required this.id,
     required this.name,
     required this.startDate,
     required this.endDate,
+    required this.designation,
   });
-
-  @override
-  List<Object> get props => [id, name, startDate, endDate];
 
   Employee copyWith({
     int? id,
     String? name,
     DateTime? startDate,
     DateTime? endDate,
+    String? designation,
   }) {
     return Employee(
       id: id ?? this.id,
       name: name ?? this.name,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
+      designation: designation ?? this.designation,
     );
   }
 
@@ -45,7 +49,8 @@ class Employee extends HiveObject with EquatableMixin {
       'id': id,
       'name': name,
       'startDate': startDate.millisecondsSinceEpoch,
-      'endDate': endDate.millisecondsSinceEpoch,
+      'endDate': endDate != null ? endDate!.millisecondsSinceEpoch : null,
+      'designation': designation,
     };
   }
 
@@ -54,23 +59,48 @@ class Employee extends HiveObject with EquatableMixin {
       id: map['id']?.toInt() ?? 0,
       name: map['name'] ?? '',
       startDate: DateTime.fromMillisecondsSinceEpoch(map['startDate']),
-      endDate:  DateTime.fromMillisecondsSinceEpoch(map['endDate']) ,
+      endDate: map['endDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['endDate'])
+          : null,
+      designation: map['designation'] ?? '',
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory Employee.fromJson(String source) => Employee.fromMap(json.decode(source));
+  factory Employee.fromJson(String source) =>
+      Employee.fromMap(json.decode(source));
 
   @override
   String toString() {
-    return 'Employee(id: $id, name: $name, startDate: $startDate, endDate: $endDate)';
+    return 'Employee(id: $id, name: $name, startDate: $startDate, endDate: $endDate, designation: $designation)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is Employee &&
+        other.id == id &&
+        other.name == name &&
+        other.startDate == startDate &&
+        other.endDate == endDate &&
+        other.designation == designation;
+  }
+
+  @override
+  int get hashCode {
+    return id.hashCode ^
+        name.hashCode ^
+        startDate.hashCode ^
+        endDate.hashCode ^
+        designation.hashCode;
   }
 }
 
 class EmployeeAdapter extends TypeAdapter<Employee> {
   @override
-  final int typeId = 0;
+  final typeId = 0;
 
   @override
   Employee read(BinaryReader reader) {
@@ -78,7 +108,10 @@ class EmployeeAdapter extends TypeAdapter<Employee> {
       id: reader.readInt(),
       name: reader.readString(),
       startDate: DateTime.parse(reader.readString()),
-      endDate:  DateTime.parse(reader.readString()) ,
+      endDate: reader.readString().isNotEmpty
+          ? DateTime.parse(reader.readString())
+          : null,
+      designation: reader.readString(),
     );
   }
 
@@ -87,7 +120,12 @@ class EmployeeAdapter extends TypeAdapter<Employee> {
     writer.writeInt(obj.id);
     writer.writeString(obj.name);
     writer.writeString(obj.startDate.toIso8601String());
-  
-    writer.writeString(obj.endDate.toIso8601String());
+
+    if (obj.endDate != null) {
+      writer.writeString(obj.endDate!.toIso8601String());
+    } else {
+      writer.writeString('');
+    }
+    writer.writeString(obj.designation);
   }
 }
