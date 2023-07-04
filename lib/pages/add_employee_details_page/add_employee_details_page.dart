@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:real_innov/styles/styles.dart';
-
 import '../../bloc/employee_bloc.dart';
 import '../../models/employee.dart';
 
@@ -18,7 +17,7 @@ class AddEmployeeDetailsPage extends StatefulWidget {
 class _AddEmployeeDetailsPageState extends State<AddEmployeeDetailsPage> {
   late EmployeeBloc employeeBloc;
   final _formKey = GlobalKey<FormState>();
-  int _employeeCounter = 0;
+
   late TextEditingController _nameController;
   late DateTime _startDate;
   late DateTime? _endDate;
@@ -62,28 +61,27 @@ class _AddEmployeeDetailsPageState extends State<AddEmployeeDetailsPage> {
   void _saveEmployee() async {
     if (_formKey.currentState!.validate()) {
       if (widget.employee != null) {
-        print('-------------------update');
+       
         final oldEmployee = widget.employee!;
         final newEmployee = Employee(
-          id: widget.employee!.id,
+          id: oldEmployee.id,
           name: _nameController.text,
           startDate: _startDate,
           endDate: _endDate != null ? _endDate : null,
           designation: _designation,
         );
-        print(oldEmployee);
-        print(newEmployee);
+      
         BlocProvider.of<EmployeeBloc>(context)
             .add(UpdateEmployeeEvent(oldEmployee, newEmployee));
       } else {
         final employee = Employee(
-          id: _generateUniqueID(),
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
           name: _nameController.text,
           startDate: _startDate,
           endDate: _endDate != null ? _endDate : null,
           designation: _designation,
         );
-        print('----------new');
+     
         print(employee);
         BlocProvider.of<EmployeeBloc>(context).add(AddEmployeeEvent(employee));
       }
@@ -92,11 +90,6 @@ class _AddEmployeeDetailsPageState extends State<AddEmployeeDetailsPage> {
       Navigator.pop(context);
       BlocProvider.of<EmployeeBloc>(context).add(LoadEmployeeEvent());
     }
-  }
-
-  int _generateUniqueID() {
-    _employeeCounter++;
-    return _employeeCounter;
   }
 
   void showDesignationBottomSheet() {
@@ -150,7 +143,7 @@ class _AddEmployeeDetailsPageState extends State<AddEmployeeDetailsPage> {
                   employeeBloc.add(DeleteEmployeeEvent(widget.employee!));
                   Navigator.pop(context);
                 },
-                icon: const Icon(Icons.delete))
+                icon: const Icon(Icons.delete,color: IconColor.primaryColor,))
         ],
       ),
       body: Padding(
@@ -257,6 +250,7 @@ class _AddEmployeeDetailsPageState extends State<AddEmployeeDetailsPage> {
                           firstDate: DateTime(2000),
                           lastDate: DateTime(2100),
                         );
+                        
                         if (selectedDate != null) {
                           setState(() {
                             _startDate = selectedDate;
@@ -297,7 +291,7 @@ class _AddEmployeeDetailsPageState extends State<AddEmployeeDetailsPage> {
                         final selectedDate = await showDatePicker(
                           context: context,
                           initialDate: _endDate ?? DateTime.now(),
-                          firstDate: DateTime(2000),
+                          firstDate: _startDate,
                           lastDate: DateTime(2100),
                         );
                         if (selectedDate != null) {

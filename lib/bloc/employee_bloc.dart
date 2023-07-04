@@ -48,27 +48,26 @@ Future<void> _mapAddEmployeeEventToState(
     emit(EmployeeErrorState('Failed to add employee'));
   }
 }
-
-
 Future<void> _mapUpdateEmployeeEventToState(
   UpdateEmployeeEvent event,
   Emitter<EmployeeState> emit,
 ) async {
   emit(EmployeeLoadingState());
   try {
-    await database.updateEmployee(event.newEmployee);
+    await database.updateEmployee(event.oldEmployee,event.newEmployee);
     final employees = await database.getEmployees();
+  
     final updatedEmployees = List<Employee>.from(employees);
-    final index = updatedEmployees.indexWhere((emp) => emp.id == event.oldEmployee.id);
-    if (index != -1) {
-      updatedEmployees[index] = event.newEmployee;
-    }
-    print(updatedEmployees);
+    final oldEmployeeId = event.oldEmployee.id;
+    updatedEmployees.removeWhere((emp) => emp.id == oldEmployeeId); // Remove all occurrences of the old employee
+   
     emit(EmployeeLoadedState(updatedEmployees));
   } catch (e) {
     emit(EmployeeErrorState('Failed to update employee'));
   }
 }
+
+
 
 
 Future<void> _mapDeleteEmployeeEventToState(
